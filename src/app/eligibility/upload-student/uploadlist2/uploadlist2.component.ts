@@ -37,8 +37,14 @@ export class Uploadlist2Component implements OnInit {
   }
   inp1: any = {
     sem: '',
+    type: '',
     filename: ''
   };
+
+  //   inp2: any = {
+  //     type: '',
+  //     // filename: ''
+  // };
 
   statusMessage = '';
 
@@ -49,7 +55,7 @@ export class Uploadlist2Component implements OnInit {
 
     // Check if a file is selected and upload it
     if (this.filename) {
-      this.dataService.uploadFileInE(this.filename).subscribe(
+      this.dataService.uploadFile(this.filename).subscribe(
         (fileResp) => {
           console.log('File uploaded successfully:', fileResp);
           this.toast.success('File uploaded successfully');

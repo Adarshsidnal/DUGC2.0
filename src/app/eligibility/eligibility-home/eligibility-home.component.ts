@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 
-
 @Component({
   selector: 'app-eligibility-home',
   templateUrl: './eligibility-home.component.html',

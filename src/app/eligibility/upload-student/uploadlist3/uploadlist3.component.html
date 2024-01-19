@@ -13,15 +13,41 @@
     </select>
   </div>
 
+
+  <div class="modal-body" style="width: 50%; margin-left: 38%;">
+    <label class="control-label" for="course">Select type</label>
+    <select class="form-select mb-3" name="type" id="type" (change)="formvalue($event)" ngModel [required]="true"
+      [(ngModel)]="inp2.type" required>
+      <option value="" disabled selected>Select type</option>
+      <option value="theory">Theory</option>
+      <option value="lab">Lab</option>
+    </select>
+  </div>
+
+
+  <!-- 1 -->
+  <!-- <button class="btn" id="submit-upload" (click)="retrieveDataBySem()" style="margin-left: 35%;">
+        <svg class="material-icons" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+          <path d="M3 18h18v-2H3v2zm0-4h18v-2H3v2zm0-4h18V8H3v2z"/>
+        </svg> -->
+
+
+
+
+
   <button class="btn" id="submit-upload" (click)="retrieveDataBySem()" style="margin-left: 35%;">
     <svg class="material-icons" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
       <path d="M3 18h18v-2H3v2zm0-4h18v-2H3v2zm0-4h18V8H3v2z" />
     </svg>
+
+
+
+
     Retrieve Data
   </button>
 </form>
 
-<br><br><br><br><br><br><br>
+<br><br><br><br><br>
 
 
 <div id="print">
@@ -37,6 +63,55 @@
 
 
 
+
+
+
+
+
+
+
+  <!-- <p> this is data
+      {{ count + 1 }}. 
+      <strong>USN:</strong> {{ student.USN }} |
+      <strong>Name:</strong> {{ student.Name }}
+    </p>
+   -->
+  <!-- <ng-container *ngFor="let course of courses">
+   
+    
+    <td>{{ student[course.name]?.CIE || '--' }}</td>
+    <td>{{ student[course.name]?.Attendance || '--' }}</td>
+ </ng-container> -->
+
+
+
+
+  <!-- 
+ <p>Debug: {{ courses | json }}</p>
+
+ <p>this is loop </p>
+    <ng-container *ngFor="let course of courses['sem3']">
+      <p>Debug: Inside the loop - {{ course | json }}</p>
+      <p>hiii in the loop  this is me</p>
+
+      <p>
+        cie
+        {{ course }}:
+        CIE: {{ student[course]?.CIE || '--' }},
+        attd
+        Attendance: {{ student[course]?.Attendance || '--' }}
+      </p>
+    </ng-container>
+ </div> -->
+
+
+
+
+
+
+
+
+  <!-- Display the retrieved data in a table -->
   <div>
     <table class="table table-hover table-bordered table-sm caption-top" style="text-align:center;border:2px;">
       <thead class="table-active">
@@ -67,17 +142,57 @@
           <th scope="col">Att</th>
 
         </tr>
+        <!-- {{resetSno()}} -->
       </thead>
       <tbody>
-        <tr *ngFor="let student of retrievedData; let count=index ">
-          <td>{{ count + 1 }}</td>
-          <td>{{ student.USN }}</td>
-          <td>{{ student.Name }}</td>
-          <ng-container *ngFor="let key of courses[inp.sem]">
-            <td>{{ student[key.name]?.CIE || '--' }}</td>
-            <td>{{ student[key.name]?.Attendance || '--' }}</td>
-          </ng-container>
-        </tr>
+        <ng-container *ngIf="inp2.type === 'theory'">
+
+          <tr *ngFor="let student of retrievedData; let count=index ">
+            <td>{{ count + 1 }}</td>
+            <td>{{ student.USN }}</td>
+            <td>{{ student.Name }}</td>
+            <ng-container *ngFor="let course of theorycourses[inp.sem]">
+
+              <!-- 1 -->
+              <td>{{ student[course.name]?.CIE || '--' }}</td>
+
+              <td>{{ student[course.name]?.Attendance || '--' }}</td>
+
+            </ng-container>
+          </tr>
+        </ng-container>
+
+
+
+
+        <ng-container *ngIf="inp2.type === 'lab'">
+
+
+
+          <tr *ngFor="let student of retrievedData; let count=index ">
+            <td>{{ count + 1 }}</td>
+            <td>{{ student.USN }}</td>
+            <td>{{ student.Name }}</td>
+            <!-- 1 -->
+            <ng-container *ngFor="let course of labcourses[inp.sem]">
+
+              <td>{{ student[course.name]?.CIE || '--' }}</td>
+
+              <td>{{ student[course.name]?.Attendance || '--' }}</td>
+
+            </ng-container>
+          </tr>
+        </ng-container>
+
+
+
+
+
+
+
+
+        <!-- {{ incrementSno() }} -->
+
       </tbody>
     </table>
   </div>
@@ -93,14 +208,33 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let course of theorycourses[inp.sem]">
+        <!-- <tr *ngFor="let course of theorycourses[inp.sem]">
           <td scope="row">{{ course.name }}</td>
           <td>{{ course.code }}</td>
-        </tr>
+        </tr> -->
+        <ng-container *ngIf="inp2.type === 'theory'">
+          <tr *ngFor="let course of theorycourses[inp.sem]">
+            <td scope="row">{{ course.name }}</td>
+            <td>{{ course.code }}</td>
+          </tr>
+        </ng-container>
+
+        <ng-container *ngIf="inp2.type === 'lab'">
+          <tr *ngFor="let course of labcourses[inp.sem]">
+            <td scope="row">{{ course.name }}</td>
+            <td>{{ course.code }}</td>
+          </tr>
+        </ng-container>
+
+
+
+
+
       </tbody>
     </table>
   </div>
-</div>
-<div class="d-grid gap-2 d-md-flex justify-content-md-end">
-</div>
-<br>
+
+  <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+
+  </div>
+  <br>

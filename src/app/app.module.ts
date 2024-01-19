@@ -107,6 +107,8 @@ import { Dugc1Component } from './labmain/dugc1/dugc1.component';
 import { ChartComponent } from './labmain/chart/chart.component';
 import { SingleComponent } from './labmain/single/single.component';
 import { CoordComponent } from './labmain/coord/coord.component';
+import { ConsolidateComponent } from './labmain/consolidate/consolidate.component';
+import { DeleteComponent } from './labmain/delete/delete.component';
 
 
 @NgModule({
@@ -196,6 +198,8 @@ import { CoordComponent } from './labmain/coord/coord.component';
     ChartComponent,
     SingleComponent,
     CoordComponent,
+    ConsolidateComponent,
+    DeleteComponent,
   ],
   imports: [
     FlexLayoutModule,

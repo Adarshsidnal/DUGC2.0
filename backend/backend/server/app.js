@@ -226,8 +226,8 @@ app.post("/upload_sheets", securityHandler.isFacultyCord, (req, res) => {
   });
 });
 //------------------------------------------------------------------------------------------------------------------
-const Theory = require("./models/theories.js"); // Import the User model here
-const xlsx = require("xlsx");
+// const Theory = require("./models/theories.js"); // Import the User model here
+// const xlsx = require("xlsx");
 
 var Instorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -244,8 +244,291 @@ app.post(
   uploadFiles
 );
 
+
+
+
+
+
+const Theory = require("./models/theories.js"); // Import the User model here
+const Lab = require("./models/lab.js");
+const xlsx = require("xlsx");
+var uploadi = multer({ storage: storage });
+
+
+// app.post("/uploadTheory", uploadi.single("filename"), async (req, res) => {
+//   const sem = req.body.sem;
+//   const type = req.body.type;
+//   // const filename = req.body.filename;
+//   const filePath = req.file.path;
+//   console.log("Result => ", req.file);
+
+//   if (!filePath) {
+//     console.log("Filename is not provided in the request.");
+//     return res
+//       .status(400)
+//       .json({ error: "Filename is required in the request body." });
+//   }
+//   // let f = filename.split("\\");
+//   // let file_name = f[f.length - 1];
+
+//   // let result1 = {};
+//   // try {
+//   //   result1 = excelToJson({
+//   //     sourceFile: path.join(__dirname, "spreadsheets/new", file_name),
+//   //   });
+//   //   console.log(result1);
+//   // } catch (err) {
+//   //   console.log("File not found!");
+//   //   return res.status(400).json({ error: "File not found." });
+//   // }
+
+//   let result1 = {};
+//   try {
+//     result1 = excelToJson({
+//       sourceFile: filePath,
+//     });
+//     console.log(result1);
+//   } catch (err) {
+//     console.log("File not found!");
+//     return res.status(400).json({ error: "File not found." });
+//   }
+
+//   let resultSheet1 = result1.Sheet1;
+
+//   // Check if resultSheet1 is an array before applying filter
+//   if (!Array.isArray(resultSheet1)) {
+//     console.log("Sheet1 is not an array.");
+//     return res.status(400).json({ error: "Invalid data format in the spreadsheet." });
+//   }
+
+//   // Filter out entries where Sl_no is null
+//   resultSheet1 = resultSheet1.filter((data) => isValidNumber(data.A));
+
+//   // Map the data to the desired format for MongoDB insertion
+//   let userData = resultSheet1.map((data) => ({
+//     Sl_no: parseInt(data.A),
+//     USN: data.B,
+//     Name: data.C,
+//     Sem: isValidNumber(data.D) ? parseInt(data.D) : null,
+//     div: data.E,
+//     CourseId: data.F,
+//     CourseName: data.G,
+//     CIE: isValidNumber(data.H) ? parseInt(data.H) : null,
+//     Attendance: isValidNumber(data.I) ? parseInt(data.I) : null,
+//   }));
+
+//   try {
+
+//     if (type === "theory") {
+//       // Insert the transformed data into MongoDB
+//       const result2 = await Theory.create(userData);
+//       console.log("Data inserted into MongoDB!", result2);
+
+//       // You can also write the data to a JSON file if needed
+//       fs.writeFile(
+//         "./data_files/ineligible.json",
+//         JSON.stringify(userData),
+//         (err) => {
+//           if (err) {
+//             console.error("Error writing file:", err);
+//           } else {
+//             console.log("Done writing JSON file!");
+//           }
+//         }
+//       );
+
+//       res.json({
+//         sem,
+//         filename: file_name,
+//       });
+//     }
+//     else {
+//       const result2 = await Lab.create(userData);
+//       console.log("Data inserted into MongoDB!", result2);
+
+//       // You can also write the data to a JSON file if needed
+//       fs.writeFile(
+//         "./data_files/ineligible.json",
+//         JSON.stringify(userData),
+//         (err) => {
+//           if (err) {
+//             console.error("Error writing file:", err);
+//           } else {
+//             console.log("Done writing JSON file!");
+//           }
+//         }
+//       );
+
+//       res.json({
+//         sem,
+//         filename: file_name,
+//       });
+//     }
+//   }
+
+//   catch (err) {
+//     console.error("Error inserting data into MongoDB:", err);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// });
+
+// function isValidNumber(value) {
+//   return !isNaN(value) && value !== null && value !== undefined;
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// // Endpoint to retrieve data based on semester
+
+app.get('/getTheoryBySem/:sem/:type', async (req, res) => {
+  try {
+    const sem = parseInt(req.params.sem);
+    const type = req.params.type;
+
+    if (isNaN(sem)) {
+      return res.status(400).json({ error: 'Invalid Sem parameter. Sem must be a number.' });
+    }
+
+    if (type === "lab") {
+      const details = await Lab.find({ Sem: sem });
+
+      if (details.length === 0) {
+        return res.status(404).json({ message: 'No details found for the specified Sem.' });
+      }
+      const resultJSON = {};
+      details.forEach(student => {
+        const studentDetails = {
+          Name: student.Name,
+          USN: student.USN,
+        };
+        const studentSemesterCourses = details.filter(course => course.USN === student.USN && course.Sem === sem);
+
+
+        studentSemesterCourses.forEach(course => {
+          const course1 = course.CourseId;
+          studentDetails[course1] = {
+            CourseName: course.CourseName,
+            CIE: '--',
+            Attendance: '--',
+          };
+        });
+
+        studentSemesterCourses.forEach(course => {
+          const course1 = course.CourseId;
+          studentDetails[course1] = {
+            CourseName: course.CourseName,
+            CIE: course.CIE !== undefined ? course.CIE.toString() : '--',
+            Attendance: course.Attendance !== undefined ? course.Attendance.toString() : '--',
+          };
+        });
+
+        // Add the student's details to the resultJSON
+        resultJSON[student.USN] = studentDetails;
+      });
+
+      console.log(resultJSON);
+      res.status(200).json({ result: resultJSON });
+    }
+    else {
+      // Retrieve details from the database based on 'Sem'
+      const details = await Theory.find({ Sem: sem });
+
+      if (details.length === 0) {
+        return res.status(404).json({ message: 'No details found for the specified Sem.' });
+      }
+
+      // Organize details into a structured JSON format
+      const resultJSON = {};
+
+      // Iterate through each student's details
+      details.forEach(student => {
+        const studentDetails = {
+          Name: student.Name,
+          USN: student.USN,
+        };
+
+        // Filter courses based on the specified semester for the current student
+        const studentSemesterCourses = details.filter(course => course.USN === student.USN && course.Sem === sem);
+
+        studentSemesterCourses.forEach(course => {
+          const course1 = course.CourseId;
+          studentDetails[course1] = {
+            CourseName: course.CourseName,
+            CIE: '--',
+            Attendance: '--',
+          };
+        });
+
+        studentSemesterCourses.forEach(course => {
+          const course1 = course.CourseId;
+          studentDetails[course1] = {
+            CourseName: course.CourseName,
+            CIE: course.CIE !== undefined ? course.CIE.toString() : '--',
+            Attendance: course.Attendance !== undefined ? course.Attendance.toString() : '--',
+          };
+        });
+
+        resultJSON[student.USN] = studentDetails;
+      });
+
+      console.log(resultJSON);
+      res.status(200).json({ result: resultJSON });
+    }
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 app.post("/uploadTheory", async (req, res) => {
-  const { sem, filename } = req.body;
+  // const { sem, filename } = req.body;
+  const sem = req.body.sem;
+  const type = req.body.type;
+  const filename = req.body.filename;
+  // const type = req.body.type;
   console.log("Result => ", req.body);
 
   if (!filename) {
@@ -286,26 +569,50 @@ app.post("/uploadTheory", async (req, res) => {
 
   try {
     // Insert the transformed data into MongoDB
-    const result2 = await Theory.create(userData);
-    console.log("Data inserted into MongoDB!", result2);
+    if (type == "theory") {
+      const result2 = await Theory.create(userData);
+      console.log("Data inserted into MongoDB!", result2);
 
-    // You can also write the data to a JSON file if needed
-    fs.writeFile(
-      "./data_files/ineligible.json",
-      JSON.stringify(userData),
-      (err) => {
-        if (err) {
-          console.error("Error writing file:", err);
-        } else {
-          console.log("Done writing JSON file!");
+      // You can also write the data to a JSON file if needed
+      fs.writeFile(
+        "./data_files/ineligible.json",
+        JSON.stringify(userData),
+        (err) => {
+          if (err) {
+            console.error("Error writing file:", err);
+          } else {
+            console.log("Done writing JSON file!");
+          }
         }
-      }
-    );
+      );
 
-    res.json({
-      sem,
-      filename: file_name,
-    });
+      res.json({
+        sem,
+        filename: file_name,
+      });
+    }
+    else {
+      const result2 = await Lab.create(userData);
+      console.log("Data inserted into MongoDB!", result2);
+
+      // You can also write the data to a JSON file if needed
+      fs.writeFile(
+        "./data_files/ineligible.json",
+        JSON.stringify(userData),
+        (err) => {
+          if (err) {
+            console.error("Error writing file:", err);
+          } else {
+            console.log("Done writing JSON file!");
+          }
+        }
+      );
+
+      res.json({
+        sem,
+        filename: file_name,
+      });
+    }
   } catch (err) {
     console.error("Error inserting data into MongoDB:", err);
     res.status(500).json({ error: "Internal Server Error" });
@@ -317,80 +624,78 @@ function isValidNumber(value) {
 }
 
 
-app.get('/getTheoryBySem/:sem', async (req, res) => {
-  try {
-    const sem = parseInt(req.params.sem);
+// app.get('/getTheoryBySem/:sem', async (req, res) => {
+//   try {
+//     const sem = parseInt(req.params.sem);
 
-    if (isNaN(sem)) {
-      return res.status(400).json({ error: 'Invalid Sem parameter. Sem must be a number.' });
-    }
+//     if (isNaN(sem)) {
+//       return res.status(400).json({ error: 'Invalid Sem parameter. Sem must be a number.' });
+//     }
 
-    // Retrieve details from the database based on 'Sem'
-    const details = await Theory.find({ Sem: sem });
+//     // Retrieve details from the database based on 'Sem'
+//     const details = await Theory.find({ Sem: sem });
 
-    if (details.length === 0) {
-      return res.status(404).json({ message: 'No details found for the specified Sem.' });
-    }
+//     if (details.length === 0) {
+//       return res.status(404).json({ message: 'No details found for the specified Sem.' });
+//     }
 
-    // Organize details into a structured JSON format
-    const resultJSON = {};
+//     // Organize details into a structured JSON format
+//     const resultJSON = {};
 
-    // Iterate through each student's details
-    details.forEach(student => {
-      const studentDetails = {
-        Name: student.Name,
-        USN: student.USN,
-      };
+//     // Iterate through each student's details
+//     details.forEach(student => {
+//       const studentDetails = {
+//         Name: student.Name,
+//         USN: student.USN,
+//       };
 
-      // Filter courses based on the specified semester for the current student
-      const studentSemesterCourses = details.filter(course => course.USN === student.USN && course.Sem === sem);
+//       // Filter courses based on the specified semester for the current student
+//       const studentSemesterCourses = details.filter(course => course.USN === student.USN && course.Sem === sem);
 
-      // Initialize CIE and Attendance to '--' for all courses in the specified semester
-      // studentSemesterCourses.forEach(course => {
-      //   const courseKey = course${course.Sl_no};
-      //   studentDetails[courseKey] = {
-      //     CourseId: course.CourseId,
-      //     CourseName: course.CourseName,
-      //     CIE: '--',
-      //     Attendance: '--',
-      //   };
-      // });
-      studentSemesterCourses.forEach(course => {
-        // const courseKey = course${course.Sl_no};
-        const course1 = course.CourseId;
-        studentDetails[course1] = {
-          // CourseId: course.CourseId,
-          CourseName: course.CourseName,
-          CIE: '--',
-          Attendance: '--',
-        };
-      });
+//       // Initialize CIE and Attendance to '--' for all courses in the specified semester
+//       // studentSemesterCourses.forEach(course => {
+//       //   const courseKey = course${course.Sl_no};
+//       //   studentDetails[courseKey] = {
+//       //     CourseId: course.CourseId,
+//       //     CourseName: course.CourseName,
+//       //     CIE: '--',
+//       //     Attendance: '--',
+//       //   };
+//       // });
+//       studentSemesterCourses.forEach(course => {
+//         // const courseKey = course${course.Sl_no};
+//         const course1 = course.CourseId;
+//         studentDetails[course1] = {
+//           // CourseId: course.CourseId,
+//           CourseName: course.CourseName,
+//           CIE: '--',
+//           Attendance: '--',
+//         };
+//       });
 
-      // Update CIE and Attendance if the student is connected to a course in the specified semester
-      studentSemesterCourses.forEach(course => {
-        // const courseKey = course${course.Sl_no};
-        const course1 = course.CourseId;
-        studentDetails[course1] = {
-          // CourseId: course.CourseId,
-          CourseName: course.CourseName,
-          CIE: course.CIE !== undefined ? course.CIE.toString() : '--',
-          Attendance: course.Attendance !== undefined ? course.Attendance.toString() : '--',
-        };
-      });
+//       // Update CIE and Attendance if the student is connected to a course in the specified semester
+//       studentSemesterCourses.forEach(course => {
+//         // const courseKey = course${course.Sl_no};
+//         const course1 = course.CourseId;
+//         studentDetails[course1] = {
+//           // CourseId: course.CourseId,
+//           CourseName: course.CourseName,
+//           CIE: course.CIE !== undefined ? course.CIE.toString() : '--',
+//           Attendance: course.Attendance !== undefined ? course.Attendance.toString() : '--',
+//         };
+//       });
 
-      // Add the student's details to the resultJSON
-      resultJSON[student.USN] = studentDetails;
-    });
+//       // Add the student's details to the resultJSON
+//       resultJSON[student.USN] = studentDetails;
+//     });
 
-    console.log(resultJSON);
-    res.status(200).json({ result: resultJSON });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-
+//     console.log(resultJSON);
+//     res.status(200).json({ result: resultJSON });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
 
 
 
@@ -400,79 +705,79 @@ app.get('/getTheoryBySem/:sem', async (req, res) => {
 
 
 
-const lab = require("./models/lab.js");
 
 
-app.post("/uploadLab", async (req, res) => {
-  const { sem, filename } = req.body;
-  console.log("Result => ", req.body);
-
-  if (!filename) {
-    console.log("Filename is not provided in the request.");
-    return res
-      .status(400)
-      .json({ error: "Filename is required in the request body." });
-  }
-  let f = filename.split("\\");
-  let file_name = f[f.length - 1];
-
-  let result1 = {};
-  try {
-    result1 = excelToJson({
-      sourceFile: path.join(__dirname, "spreadsheets/new", file_name),
-    });
-    console.log(result1);
-  } catch (err) {
-    console.log("File not found!");
-    return res.status(400).json({ error: "File not found." });
-  }
-
-  let resultSheet1 = result1.Sheet1;
-  // Filter out entries where Sl_no is null
-  resultSheet1 = resultSheet1.filter((data) => isValidNumber(data.A));
-
-  // Map the data to the desired format for MongoDB insertion
-  let userData = resultSheet1.map((data) => ({
-    Sl_no: parseInt(data.A),
-    USN: data.B,
-    Name: data.C,
-    Sem: isValidNumber(data.D) ? parseInt(data.D) : null,
-    div: data.E,
-    CourseId: data.F,
-    CourseName: data.G,
-    CIE: isValidNumber(data.H) ? parseInt(data.H) : null,
-    Attendance: isValidNumber(data.I) ? parseInt(data.I) : null,
-  }));
-
-  try {
-    // Insert the transformed data into MongoDB
-    const result2 = await lab.create(userData);
-    console.log("Data inserted into MongoDB!", result2);
-
-    // You can also write the data to a JSON file if needed
-    fs.writeFile(
-      "./data_files/ineligible.json",
-      JSON.stringify(userData),
-      (err) => {
-        if (err) {
-          console.error("Error writing file:", err);
-        } else {
-          console.log("Done writing JSON file!");
-        }
-      }
-    );
-
-    res.json({
-      sem,
-      filename: file_name,
-    });
-  } catch (err) {
-    console.error("Error inserting data into MongoDB:", err);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
+// const lab = require("./models/lab.js");
 
 
+// app.post("/uploadLab", async (req, res) => {
+//   const { sem, filename } = req.body;
+//   console.log("Result => ", req.body);
+
+//   if (!filename) {
+//     console.log("Filename is not provided in the request.");
+//     return res
+//       .status(400)
+//       .json({ error: "Filename is required in the request body." });
+//   }
+//   let f = filename.split("\\");
+//   let file_name = f[f.length - 1];
+
+//   let result1 = {};
+//   try {
+//     result1 = excelToJson({
+//       sourceFile: path.join(__dirname, "spreadsheets/new", file_name),
+//     });
+//     console.log(result1);
+//   } catch (err) {
+//     console.log("File not found!");
+//     return res.status(400).json({ error: "File not found." });
+//   }
+
+//   let resultSheet1 = result1.Sheet1;
+//   // Filter out entries where Sl_no is null
+//   resultSheet1 = resultSheet1.filter((data) => isValidNumber(data.A));
+
+//   // Map the data to the desired format for MongoDB insertion
+//   let userData = resultSheet1.map((data) => ({
+//     Sl_no: parseInt(data.A),
+//     USN: data.B,
+//     Name: data.C,
+//     Sem: isValidNumber(data.D) ? parseInt(data.D) : null,
+//     div: data.E,
+//     CourseId: data.F,
+//     CourseName: data.G,
+//     CIE: isValidNumber(data.H) ? parseInt(data.H) : null,
+//     Attendance: isValidNumber(data.I) ? parseInt(data.I) : null,
+//   }));
+
+//   try {
+//     // Insert the transformed data into MongoDB
+//     const result2 = await lab.create(userData);
+//     console.log("Data inserted into MongoDB!", result2);
+
+//     // You can also write the data to a JSON file if needed
+//     fs.writeFile(
+//       "./data_files/ineligible.json",
+//       JSON.stringify(userData),
+//       (err) => {
+//         if (err) {
+//           console.error("Error writing file:", err);
+//         } else {
+//           console.log("Done writing JSON file!");
+//         }
+//       }
+//     );
+
+//     res.json({
+//       sem,
+//       filename: file_name,
+//     });
+//   } catch (err) {
+//     console.error("Error inserting data into MongoDB:", err);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// });
 
 
 
@@ -492,54 +797,73 @@ app.post("/uploadLab", async (req, res) => {
 
 
 
-// Endpoint to retrieve data based on semester
-app.get("/getTheoryBySem/:sem", async (req, res) => {
-  console.log("HIIII in app");
-  try {
-    const sem = parseInt(req.params.sem);
-
-    if (isNaN(sem)) {
-      return res
-        .status(400)
-        .json({ error: "Invalid semester value provided." });
-    }
-
-    // Query MongoDB to find data based on the provided semester
-    const theoryData = await Theory.find({ Sem: sem });
-    console.log(theoryData);
-    res.json(theoryData);
-  } catch (err) {
-    console.error("Error retrieving data from MongoDB:", err);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
 
 
+// // Endpoint to retrieve data based on semester
+// app.get("/getTheoryBySem/:sem", async (req, res) => {
+//   console.log("HIIII in app");
+//   try {
+//     const sem = parseInt(req.params.sem);
 
+//     if (isNaN(sem)) {
+//       return res
+//         .status(400)
+//         .json({ error: "Invalid semester value provided." });
+//     }
 
+//     // Query MongoDB to find data based on the provided semester
+//     const theoryData = await Theory.find({ Sem: sem });
+//     console.log(theoryData);
+//     res.json(theoryData);
+//   } catch (err) {
+//     console.error("Error retrieving data from MongoDB:", err);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// });
 
 
 
-app.get("/getLabBySem/:sem", async (req, res) => {
-  console.log("HIIII in app");
-  try {
-    const sem = parseInt(req.params.sem);
 
-    if (isNaN(sem)) {
-      return res
-        .status(400)
-        .json({ error: "Invalid semester value provided." });
-    }
 
-    // Query MongoDB to find data based on the provided semester
-    const labData = await lab.find({ Sem: sem });
-    console.log(labData);
-    res.json(labData);
-  } catch (err) {
-    console.error("Error retrieving data from MongoDB:", err);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
+
+
+// app.get("/getLabBySem/:sem", async (req, res) => {
+//   console.log("HIIII in app");
+//   try {
+//     const sem = parseInt(req.params.sem);
+
+//     if (isNaN(sem)) {
+//       return res
+//         .status(400)
+//         .json({ error: "Invalid semester value provided." });
+//     }
+
+//     // Query MongoDB to find data based on the provided semester
+//     const labData = await lab.find({ Sem: sem });
+//     console.log(labData);
+//     res.json(labData);
+//   } catch (err) {
+//     console.error("Error retrieving data from MongoDB:", err);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //------------------------------------------------------------------------------------------------------------
 
 //--------------------------------Download Routes for Circular------------------------------------------------

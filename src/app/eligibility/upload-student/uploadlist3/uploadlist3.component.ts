@@ -1,4 +1,3 @@
-
 import { Component, OnInit } from '@angular/core';
 import { StudentsService } from '../../services/students.service';
 import { LabService } from '../../services/lab.service';
@@ -27,6 +26,11 @@ interface FormattedStudent {
   styleUrls: ['./uploadlist3.component.css']
 })
 export class Uploadlist3Component implements OnInit {
+
+
+  selectedSemester: number = 0; // Initialize with a default value
+
+
   ExelData: any;
   exeldata: any;
   retrievedData: any;
@@ -49,10 +53,27 @@ export class Uploadlist3Component implements OnInit {
   course6: string = "";
 
 
-  couses: any = (allcourses);
-  courses: any = (allcourses3);
-  theorycourses: any = (allcoursestheory);
+
+
+
+
+  couses: any = (allcourses as any).default;
+  // courses:any =(allcourses3 as any).default;
+  theorycourses: any = (allcoursestheory)
   labcourses: any = (allcourseslab);
+  courses: any = allcourses3;
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   test: string = "22ECSC303";
@@ -71,18 +92,39 @@ export class Uploadlist3Component implements OnInit {
 
 
 
-  constructor(private studentService: StudentsService, private labService: LabService,
-    private toast: ToastrService,
-    private dataService: DataService, private route: Router) {
-    this.Showdate = studentService.displayDate();
+  logCIEValue: any;
+  logAttendanceValue: any;
+
+  // ... Other class methods ...
+
+  // Update your existing methods
+  setLogCIEValue(value: any): any {
+    this.logCIEValue = value;
+    console.log('CIE Value:', value);
+    return value;
+  }
+
+  setLogAttendanceValue(value: any): any {
+    this.logAttendanceValue = value;
+    console.log('Attendance Value:', value);
+    return value;
   }
 
 
+
+  constructor(private studentService: StudentsService, private labService: LabService,
+    private toast: ToastrService,
+    private dataService: DataService, private route: Router) { this.Showdate = studentService.displayDate(); }
+
   ngOnInit(): void {
-    console.log(this.courses);
+    console.log('Courses:', this.courses);
     console.log(this.courses.sem3);
     console.log(this.courses.sem3[0].code);
     console.log(this.couses);
+    console.log('Theory Courses:', this.theorycourses);
+
+
+
   }
 
   //read xl file to store data in json
@@ -148,6 +190,11 @@ export class Uploadlist3Component implements OnInit {
     // filename: ''
   };
 
+  inp2: any = {
+    type: '',
+    // filename: ''
+  };
+
   statusMessage = '';
 
   validateInput1(): boolean {
@@ -167,65 +214,31 @@ export class Uploadlist3Component implements OnInit {
     return true;
   }
 
-  // retrieveDataBySem(): void {
-  //   console.log("HIIII");
-  //   if (!this.validateInput1()) {
-  //     this.statusMessage = 'ERROR: Invalid or missing field';
-  //   } else {
-  //     this.statusMessage = '';
-  //     const sem = parseInt(this.inp.sem);
-  //     this.dataService.getTheoryBySem(sem).subscribe(
-  //       (data) => {
-  //         // console.log('Data retrieved successfully:', data);
-  //         console.log('Data retrieved successfully:');
-  //         // Handle the retrieved data as needed
-  //       },
-  //       (error) => {
-  //         console.log('Error retrieving data:', error);
-  //         // Handle error retrieving data
-  //       }
-  //     );
-  //   }
-  // }
 
+  //1 code dont delete
 
-  // retrieveDataBySem(): void {
-  //   console.log("HIIII");
-  //   if (!this.validateInput1()) {
-  //     this.statusMessage = 'ERROR: Invalid or missing field';
-  //   } else {
-  //     this.statusMessage = '';
-  //     const sem = parseInt(this.inp.sem);
-  //     this.dataService.getTheoryBySem(sem).subscribe(
-  //       (data) => {
-  //         console.log('Data retrieved successfully:', data);
-  //         this.retrievedData = data.result;
-  //         console.log('Data retrieved :', this.retrievedData);
-  //         // Handle the retrieved data as needed
-  //       },
-  //       (error) => {
-  //         console.log('Error retrieving data:', error);
-  //         // Handle error retrieving data
-  //       }
-  //     );
-  //   }
-  // }
-
-
-
-  // ...
 
   retrieveDataBySem(): void {
     console.log("HIIII");
+
+
+    console.log('Courses111:', allcourses3);
+    this.courses = allcourses3;
+    console.log('Courses:', this.courses);
+
+
+
+
     if (!this.validateInput1()) {
       this.statusMessage = 'ERROR: Invalid or missing field';
     } else {
       this.statusMessage = '';
       const sem = parseInt(this.inp.sem);
-      this.dataService.getTheoryBySem(sem).subscribe(
+      const type = this.inp2.type;
+      this.dataService.getTheoryBySem1(sem, type).subscribe(
         (data) => {
           console.log('Data retrieved successfully:', data);
-
+          console.log('Data Structure:', data.result);
           // Transform the data structure to the desired format
           this.retrievedData = Object.keys(data.result).map(usn => {
             const studentDetails = data.result[usn];
@@ -233,7 +246,7 @@ export class Uploadlist3Component implements OnInit {
               USN: studentDetails.USN,
               Name: studentDetails.Name,
             };
-
+            console.log('Student Details:', studentDetails);
             Object.keys(studentDetails).forEach(key => {
               if (key !== 'USN' && key !== 'Name') {
                 formattedStudent[key] = {
@@ -258,63 +271,140 @@ export class Uploadlist3Component implements OnInit {
 
 
 
-  formvalue(E: any) {
-    let sem = E.target.value;
 
 
-    if (sem == 7) {
-      console.log(sem);
-      this.course1 = "17ECSC401";
-      this.course2 = "20ECSE402";
-      this.course3 = "18ECSE402";
-      this.course4 = "19ECSE401";
-      this.course5 = "20ECSE504";
+
+
+
+
+
+  formvalue(event: any) {
+    // let sem=E.target.value;
+    // this.selectedSemester = E.target.value;
+    let sem = this.inp.sem;
+    let type = this.inp2.type;
+    console.log("hiii in event")
+    console.log("the sem is this :", sem);
+    console.log("the type is this :", type);
+    if (type == "lab") {
+      if (sem == 7) {
+        console.log(sem);
+        this.course1 = "";
+        this.course2 = "";
+        this.course3 = "";
+        this.course4 = "";
+        this.course5 = "";
+      }
+      else if (sem == 6) {
+        console.log(sem);
+        this.course1 = "20ECSP305";
+        this.course2 = "";
+        this.course3 = "";
+        this.course4 = "";
+        this.course5 = "";
+        // this.course6="17ECSE303";
+        // this.course7="17ECSE309";
+        // this.course8="18ECSE302";
+        // this.course9="17ECSE306";
+        // this.course10="19ECSE303";
+        // this.course11="12ECSE332";
+
+
+      } else if (sem == 5) {
+        console.log(sem);
+        this.course1 = "21ECSP304";
+        this.course2 = "19ECSP302";
+        this.course3 = "";
+        this.course4 = "";
+
+
+      } else if (sem == 4) {
+        console.log(sem);
+        this.course1 = "20ECSP203";
+        this.course2 = "";
+        this.course3 = "";
+        this.course4 = "";
+        this.course5 = "";
+        this.course6 = "";
+
+
+      } else if (sem == '3') {
+        console.log(sem);
+        this.course1 = "19ECSP201";
+        this.course2 = "15ECSP204";
+        this.course3 = "";
+        this.course4 = "";
+        this.course5 = "";
+      }
     }
-    else if (sem == 6) {
-      console.log(sem);
-      this.course1 = "20ECSC303";
-      this.course2 = "20ECSC305";
-      this.course3 = "22ECSC307";
-      this.course4 = "17ECSE307";
-      this.course5 = "";
-      // this.course6="17ECSE303";
-      // this.course7="17ECSE309";
-      // this.course8="18ECSE302";
-      // this.course9="17ECSE306";
-      // this.course10="19ECSE303";
-      // this.course11="12ECSE332";
+    else {
+      if (sem == 7) {
+        console.log(sem);
+        this.course1 = "17ECSC401";
+        this.course2 = "20ECSE402";
+        this.course3 = "18ECSE402";
+        this.course4 = "19ECSE401";
+        this.course5 = "20ECSE504";
+      }
+      else if (sem == 6) {
+        console.log(sem);
+        this.course1 = "20ECSC303";
+        this.course2 = "20ECSC305";
+        this.course3 = "22ECSC307";
+        this.course4 = "17ECSE307";
+        this.course5 = "";
+        // this.course6="17ECSE303";
+        // this.course7="17ECSE309";
+        // this.course8="18ECSE302";
+        // this.course9="17ECSE306";
+        // this.course10="19ECSE303";
+        // this.course11="12ECSE332";
 
 
-    } else if (sem == 5) {
-      console.log(sem);
-      this.course1 = this.couses[2].courses[4].code;
-      this.course2 = "19ECSC302";
-      this.course3 = "17ECSC302";
-      this.course4 = "22ECSC306";
+      } else if (sem == 5) {
+        console.log(sem);
+        this.course1 = this.couses[2].courses[4].code;
+        this.course2 = "19ECSC302";
+        this.course3 = "17ECSC302";
+        this.course4 = "22ECSC306";
 
 
-    } else if (sem == 4) {
-      console.log(sem);
-      this.course1 = "20EMAB209";
-      this.course2 = "21ECSC206";
-      this.course3 = "20ECSC204";
-      this.course4 = "19ECSC203";
-      this.course5 = "22ECSC202";
-      this.course6 = "21ECSC210";
+      } else if (sem == 4) {
+        console.log(sem);
+        this.course1 = "20EMAB209";
+        this.course2 = "21ECSC206";
+        this.course3 = "20ECSC204";
+        this.course4 = "19ECSC203";
+        this.course5 = "22ECSC202";
+        this.course6 = "21ECSC210";
 
 
-    } else if (sem == 3) {
-      console.log(sem);
-      this.course1 = this.couses[0].courses[0].code;
-      this.course2 = "19ECSC202";
-      this.course3 = "20ECSC201";
-      this.course4 = "20ECSC205";
-      this.course5 = "15ECSC208";
+      } else if (sem == '3') {
+        console.log(sem);
+        this.course1 = this.couses[0].courses[0].code;
+        this.course2 = "19ECSC202";
+        this.course3 = "20ECSC201";
+        this.course4 = "20ECSC205";
+        this.course5 = "15ECSC208";
+      }
     }
-    this.courses = this.courses['sem' + sem];
-    this.theorycourses = this.theorycourses['sem' + sem];
 
-    console.log(this.courses);
+
+    //1
+    // this.courses = this.courses['sem' + sem];
+    // this.theorycourses = this.theorycourses['sem' + sem];
+
+
+
+
+    this.courses = this.couses['sem' + sem];
+    this.theorycourses = this.couses['sem' + sem];
+    //this.retrieveDataBySem(sem);
+
+
+
+
+
   }
 
 

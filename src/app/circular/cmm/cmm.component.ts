@@ -52,13 +52,13 @@ export class CmmComponent implements OnInit {
       this.dataService.uploadEmail11(this.inp2.filename).subscribe(
         (fileResp) => {
           console.log('File uploaded successfully:', fileResp);
-          this.toast.success('File uploaded successfully');
+          this.toast.success('Email Sent Sucessfully');
 
           // If the file upload is successful, proceed to upload sheets
           this.dataService.uploadEmail(this.inp2).subscribe(
             (sheetsResp) => {
               console.log('Sheets uploaded successfully:', sheetsResp);
-              this.toast.success('Sheets uploaded successfully');
+              this.toast.success('Email sent Successfully');
             },
             (sheetsError) => {
               console.log('Error uploading sheets:', sheetsError);

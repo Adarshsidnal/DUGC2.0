@@ -20,11 +20,20 @@
           <option>7</option>
           <option>8</option>
         </select>
-        <br>
-        <br>
+
 
         <!-- <input type="file" class="form-control" id="customFile" (change)="readfile($event)"/> -->
       </div>
+
+      <div class="modal-body">
+        <label class="control-label" for="course">Select type</label>
+        <select class="form-select mb-3" name="type" id="type" [(ngModel)]="inp1.type" required>
+          <option value="" disabled selected>Select type</option>
+          <option value="theory">Theory</option>
+          <option value="lab">Lab</option>
+        </select>
+      </div>
+
       <form action="/upload_file" enctype="multipart/form-data" method="post">
         <div class="input-section-content">
           <input type="file" name="filename" id="filename" accept=".xls,.xlsx" (change)="this.onFilechange($event)"

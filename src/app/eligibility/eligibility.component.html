@@ -1,35 +1,32 @@
-<div class="nav-options">
-  <div class="nav-op" routerLink="/Minor" [routerLinkActive]="['selected-option']">
-    ISA Analysis</div>
-  <div class="nav-op" routerLink="/Endsem" [routerLinkActive]="['selected-option']">
-    End Sem Result Analysis</div>
-  <div class="nav-op" routerLink="/Labmain" [routerLinkActive]="['selected-option']">
-    Lab CIE Analysis</div>
-  <div class="nav-op" routerLink="/Withdrawal" [routerLinkActive]="['selected-option']">
-    Course Withdrawal</div>
-  <div class="nav-op" routerLink="/Circular" [routerLinkActive]="['selected-option']">
-    Circular</div>
-  <div class="nav-op" routerLink="/eligibility" [routerLinkActive]="['selected-option']">
-    Eligibility</div>
-  <div class="nav-op" routerLink="/makeup" [routerLinkActive]="['selected-option']">
-    Makeup Minor</div>
-  <!-- <div class="nav-op" routerLink="/add-user" [routerLinkActive]="['selected-option']">
+<div class="nav-options" >
+    <div class="nav-op" routerLink="/Minor" [routerLinkActive]="['selected-option']">
+      ISA Analysis</div>
+    <div class="nav-op" routerLink="/Endsem" [routerLinkActive]="['selected-option']">
+      End Sem Result Analysis</div>
+    <div class="nav-op" routerLink="/Labmain" [routerLinkActive]="['selected-option']">
+      Lab CIE Analysis</div>
+    <div class="nav-op" routerLink="/Withdrawal" [routerLinkActive]="['selected-option']">
+      Course Withdrawal</div>
+    <div class="nav-op" routerLink="/Circular" [routerLinkActive]="['selected-option']">
+      Circular</div>
+    <div class="nav-op" routerLink="/eligibility" [routerLinkActive]="['selected-option']">
+      Eligibility</div>
+    <div class="nav-op" routerLink="/makeup" [routerLinkActive]="['selected-option']">
+      Makeup Minor</div>
+    <div class="nav-op" routerLink="/add-user" [routerLinkActive]="['selected-option']">
       Add User</div>
-   -->
-  <div class="nav-op" routerLink="/add-user" [routerLinkActive]="['selected-option']" *ngIf="userType =='DUGCChairman'">
-      Add User</div>
-</div>
-
-<div class="nav-container">
-  <div class="navbar1">
-    <!-- <button [routerLink]="['/eligibility/ap-list']" [routerLinkActive]="['selected-option']" type="button"
-              class="nav-op4 btn">Theory</button>
-          <button [routerLink]="['/eligibility/lab']" [routerLinkActive]="['selected-option']" type="button"
-              class="nav-op4 btn">Lab</button> -->
-    <button [routerLink]="['/eligibility/upload']" [routerLinkActive]="['selected-option']" type="button"
-      class="nav-op4 btn">Theory</button>
-    <!-- <button [routerLink]="['/eligibility/lab']" [routerLinkActive]="['selected-option']" type="button"
-              class="nav-op4 btn">View</button> -->
 
   </div>
-  <router-outlet></router-outlet>
+
+<div class="nav-container">
+    <div class="navbar1">
+            <!-- <button [routerLink]="['/eligibility/ap-list']" [routerLinkActive]="['selected-option']" type="button"
+                class="nav-op4 btn">Theory</button>
+            <button [routerLink]="['/eligibility/lab']" [routerLinkActive]="['selected-option']" type="button"
+                class="nav-op4 btn">Lab</button> -->
+            <button [routerLink]="['/eligibility/upload']" [routerLinkActive]="['selected-option']" type="button"
+                class="nav-op4 btn">Ineligible list</button>
+
+
+    </div>
+    <router-outlet></router-outlet>

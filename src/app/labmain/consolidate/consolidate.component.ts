@@ -5,11 +5,11 @@ import { StatusService } from '../status.service';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-single',
-  templateUrl: './single.component.html',
-  styleUrls: ['./single.component.css']
+  selector: 'app-consolidate',
+  templateUrl: './consolidate.component.html',
+  styleUrls: ['./consolidate.component.css']
 })
-export class SingleComponent implements OnInit {
+export class ConsolidateComponent implements OnInit {
 
   constructor(
     private dataService: DataService,
@@ -17,23 +17,12 @@ export class SingleComponent implements OnInit {
     private statusService: StatusService,
     private router: Router
   ) { }
-  submitted: any;
-
-  filename: File | null = null;
-
-  onFilechange(event: any) {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      this.filename = files[0];
-    }
-  }
   inp: any = {
     academic_year: '2023-24',
     sem_type: '',
     semester: '',
     course: '',
     exam: '',
-    section: '',
     filename: '',
   };
   selectedCourse = {
@@ -52,49 +41,57 @@ export class SingleComponent implements OnInit {
   analysis: any = {};
   statusMessage = '';
   courses: any = [];
-
   changeCourses(): void {
     try {
       this.selectedCourse = this.courses[this.inp.semester];
+      console.log(this.selectedCourse);
     } catch (c) {
       console.log(c);
     }
   }
 
+  submitted: any;
+  filename: File | null = null;
+  onFilechange(event: any) {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      this.filename = files[0];
+    }
+  }
   onSubmit(): void {
     console.log("You've called the onclick function.");
     this.submitted = true;
-    this.router.navigate(['/upload'])
 
     // Check if a file is selected and upload it
-    // if (this.filename) {
-    //   this.dataService.uploadFile(this.filename).subscribe(
-    //     (fileResp) => {
-    //       console.log('File uploaded successfully:', fileResp);
+    if (this.filename) {
+      this.dataService.uploadFile(this.filename).subscribe(
+        (fileResp) => {
+          console.log('File uploaded successfully:', fileResp);
 
-    //       // If the file upload is successful, proceed to upload sheets
-    //       this.dataService.uploadSheets(this.inp).subscribe(
-    //         (sheetsResp) => {
-    //           console.log('Sheets uploaded successfully:', sheetsResp);
-    //           this.statusService.isUploaded = true;
-    //           this.statusService.setResult(sheetsResp);
-    //           this.router.navigate(['/Minor/coordinator/upload_status']);
-    //         },
-    //         (sheetsError) => {
-    //           console.log('Error uploading sheets:', sheetsError);
-    //           // Handle error uploading sheets
-    //         }
-    //       );
-    //     },
-    //     (fileError) => {
-    //       console.log('Error uploading file:', fileError);
-    //       // Handle error uploading file
-    //     }
-    //   );
-    // } else {
-    //   alert('Please select a file first');
-    // }
+          // If the file upload is successful, proceed to upload sheets
+          this.dataService.uploadMultipleSheets(this.inp).subscribe(
+            (resp) => {
+              console.log(resp);
+              this.statusService.isUploaded = true;
+              this.statusService.isConsolidated = true;
+              this.statusService.setResult(resp);
+              this.router.navigate(['/Minor/coordinator/upload_status']);
+            },
+            (error) => {
+              console.log(error);
+            }
+          );
+        },
+        (fileError) => {
+          console.log('Error uploading file:', fileError);
+          // Handle error uploading file
+        }
+      );
+    } else {
+      alert('Please select a file first');
+    }
   }
+
   validateInput(): boolean {
     for (let i in this.inp) {
       if (this.inp[i] == ' ' || !this.inp[i]) {
@@ -106,7 +103,6 @@ export class SingleComponent implements OnInit {
   submitForm(): void {
     if (!this.validateInput()) {
       this.statusMessage = 'ERROR: Invalid or missing field(s)';
-      console.log(this.inp);
     } else {
       this.statusMessage = '';
       this.onSubmit();
@@ -119,7 +115,6 @@ export class SingleComponent implements OnInit {
       semester: '',
       course: '',
       exam: '',
-      section: '',
       filename: '',
     };
     this.statusMessage = '';
@@ -161,7 +156,7 @@ export class SingleComponent implements OnInit {
         }
       },
       (error) => {
-        this.toastr.error('Cannot connect to the server.', 'Server error!');
+        this.toastr.error('Cannot connect to server', 'Server error!');
       }
     );
     this.dataService.getAnalysis().subscribe(

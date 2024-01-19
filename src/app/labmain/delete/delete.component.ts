@@ -1,40 +1,24 @@
 import { Component, OnInit } from '@angular/core';
-import { DataService } from '../data.service';
 import { ToastrService } from 'ngx-toastr';
-import { StatusService } from '../status.service';
-import { Router } from '@angular/router';
+import { DataService } from '../data.service';
 
 @Component({
-  selector: 'app-single',
-  templateUrl: './single.component.html',
-  styleUrls: ['./single.component.css']
+  selector: 'app-delete',
+  templateUrl: './delete.component.html',
+  styleUrls: ['./delete.component.css']
 })
-export class SingleComponent implements OnInit {
+export class DeleteComponent implements OnInit {
 
   constructor(
     private dataService: DataService,
-    private toastr: ToastrService,
-    private statusService: StatusService,
-    private router: Router
+    private toastr: ToastrService
   ) { }
-  submitted: any;
-
-  filename: File | null = null;
-
-  onFilechange(event: any) {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      this.filename = files[0];
-    }
-  }
   inp: any = {
     academic_year: '2023-24',
-    sem_type: '',
     semester: '',
     course: '',
     exam: '',
     section: '',
-    filename: '',
   };
   selectedCourse = {
     course_code: {
@@ -52,7 +36,6 @@ export class SingleComponent implements OnInit {
   analysis: any = {};
   statusMessage = '';
   courses: any = [];
-
   changeCourses(): void {
     try {
       this.selectedCourse = this.courses[this.inp.semester];
@@ -60,40 +43,16 @@ export class SingleComponent implements OnInit {
       console.log(c);
     }
   }
-
   onSubmit(): void {
     console.log("You've called the onclick function.");
-    this.submitted = true;
-    this.router.navigate(['/upload'])
-
-    // Check if a file is selected and upload it
-    // if (this.filename) {
-    //   this.dataService.uploadFile(this.filename).subscribe(
-    //     (fileResp) => {
-    //       console.log('File uploaded successfully:', fileResp);
-
-    //       // If the file upload is successful, proceed to upload sheets
-    //       this.dataService.uploadSheets(this.inp).subscribe(
-    //         (sheetsResp) => {
-    //           console.log('Sheets uploaded successfully:', sheetsResp);
-    //           this.statusService.isUploaded = true;
-    //           this.statusService.setResult(sheetsResp);
-    //           this.router.navigate(['/Minor/coordinator/upload_status']);
-    //         },
-    //         (sheetsError) => {
-    //           console.log('Error uploading sheets:', sheetsError);
-    //           // Handle error uploading sheets
-    //         }
-    //       );
-    //     },
-    //     (fileError) => {
-    //       console.log('Error uploading file:', fileError);
-    //       // Handle error uploading file
-    //     }
-    //   );
-    // } else {
-    //   alert('Please select a file first');
-    // }
+    this.dataService.deleteSheet(this.inp).subscribe(
+      (resp) => {
+        console.log(resp);
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
   }
   validateInput(): boolean {
     for (let i in this.inp) {
@@ -110,17 +69,17 @@ export class SingleComponent implements OnInit {
     } else {
       this.statusMessage = '';
       this.onSubmit();
+      this.toastr.success('Sheet Deleted', this.inp.course + "\n" + this.inp.section + "\n" + this.inp.exam);
+      this.getNewAnalysis();
     }
   }
   resetForm(): void {
     this.inp = {
       academic_year: '2023-24',
-      sem_type: '',
       semester: '',
       course: '',
       exam: '',
       section: '',
-      filename: '',
     };
     this.statusMessage = '';
   }
@@ -147,7 +106,17 @@ export class SingleComponent implements OnInit {
       return false;
     }
   }
-
+  getNewAnalysis(): any {
+    this.dataService.getAnalysis().subscribe(
+      (res) => {
+        this.analysis = res;
+        console.log('Analysis initialized');
+      },
+      (error) => {
+        this.toastr.error('Cannot connect to the server.', 'Server error!');
+      }
+    );
+  }
   ngOnInit(): void {
     this.dataService.getCourses().subscribe(
       (resp) => {
@@ -174,5 +143,4 @@ export class SingleComponent implements OnInit {
       }
     );
   }
-
 }

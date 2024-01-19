@@ -1,7 +1,6 @@
-
 <div class="main">
-    <div class="form">
-        <div class="form-text">Please enter the details below </div>
+    <div class="form" style="float: right;">
+        <div class="form-text">Please enter the details below: </div>
         <form class="form-input">
             <div class="input-section">
                 <div class="input-section-title">
@@ -97,49 +96,50 @@
                     </select>
                 </div>
             </div>
+
             <div class="input-section">
                 <div class="status-message">{{statusMessage}}</div>
             </div>
             <div>
-                <button id="submit-upload" routerLink="/Labmain/upload">Submit</button>
+                <button id="submit-upload" style="margin-left: 40%;" (click)="submitForm()">Delete</button>
                 <button id="reset-button" (click)="resetForm()">Reset</button>
             </div>
         </form>
     </div>
-    <div>
-        <div class="upload-status-main">
-            <div *ngIf="inp.course != '' && inp.semester != '';">
-                <div class="us-heading">Upload Status</div>
-                <div class="us-section">
-                    <div class="us-section-title"><span class="course_code">{{inp.course}}</span> -
-                        {{coursesWithNames[inp.course]}}
-                    </div>
-                    <!-- ********************************************** -->
+</div>
+<div class="status">
+    <div class="upload-status-main">
+        <div *ngIf="inp.course != '' && inp.semester != '';">
+            <div class="us-heading">Upload Status</div>
+            <div class="us-section">
+                <div class="us-section-title"><span class="course_code">{{inp.course}}</span> -
+                    {{coursesWithNames[inp.course]}}
+                </div>
+                <!-- ********************************************** -->
 
-                    <div *ngFor="let exam of exams">
-                        <div class="us-subsection">
-                            <div class="us-section-subtitle">{{exam}}:</div>
-                            <div class="us-section-content">
-                                <div *ngFor="let section of sections">
-                                    <div class="us-section-swatch">
-                                        <div class="us-section-name">{{section}}</div>
-                                        <div *ngIf="isComplete(exam,section);else elseBlock">
-                                            <div class="us-section-icon"><img src="../../assets/icons/ok.svg"
-                                                    alt="completed">
-                                            </div>
+                <div *ngFor="let exam of exams">
+                    <div class="us-subsection">
+                        <div class="us-section-subtitle">{{exam}}:</div>
+                        <div class="us-section-content">
+                            <div *ngFor="let section of sections">
+                                <div class="us-section-swatch">
+                                    <div class="us-section-name">{{section}}</div>
+                                    <div *ngIf="isComplete(exam,section);else elseBlock">
+                                        <div class="us-section-icon"><img src="../../assets/icons/ok.svg"
+                                                alt="completed">
                                         </div>
-                                        <ng-template #elseBlock>
-                                            <div class="us-section-icon"><img src="../../assets/icons/cancel.svg"
-                                                    alt="not completed">
-                                            </div>
-                                        </ng-template>
                                     </div>
+                                    <ng-template #elseBlock>
+                                        <div class="us-section-icon"><img src="../../assets/icons/cancel.svg"
+                                                alt="not completed">
+                                        </div>
+                                    </ng-template>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!-- ***************************************** -->
                 </div>
+                <!-- ***************************************** -->
             </div>
         </div>
     </div>

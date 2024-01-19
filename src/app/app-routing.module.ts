@@ -98,6 +98,8 @@ import { Dugc1Component } from './labmain/dugc1/dugc1.component';
 import { ChartComponent } from './labmain/chart/chart.component';
 import { SingleComponent } from './labmain/single/single.component';
 import { CoordComponent } from './labmain/coord/coord.component';
+import { ConsolidateComponent } from './labmain/consolidate/consolidate.component';
+import { DeleteComponent } from './labmain/delete/delete.component';
 
 const routes: Routes = [
   { path: 'loginMain', component: DugcLoginComponent },
@@ -184,15 +186,15 @@ const routes: Routes = [
         children: [
         {
           path: 'singleSheet',
-          component: SingleSheetUploadComponent,
+          component: SingleComponent,
         },
         {
           path: 'consolidatedUpload',
-          component: ConsolidatedSheetUploadComponent,
+          component: ConsolidateComponent,
         },
         {
           path: 'deleteDel',
-          component: DeleteSheetComponent,
+          component: DeleteComponent,
         },
         {
           path: 'upload_statusUpload',

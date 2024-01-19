@@ -127,7 +127,7 @@ export class DataService {
   }
 
   uploadlist(data: any) {
-    const { sem, filename } = data;
+    const { sem, type, filename } = data;
     console.log('Making a get request', data);
     const headers = new HttpHeaders();
     headers.append('Content-Type', 'multipart/form-data');
@@ -157,5 +157,11 @@ export class DataService {
   getTheoryBySem(sem: number): Observable<any> {
     console.log("Hi in dataservice");
     return this._http.get(`${this.URI}/getTheoryBySem/${sem}`);
+  }
+
+
+
+  getTheoryBySem1(sem: number, type: string): Observable<any> {
+    return this._http.get(`${this.URI}/getTheoryBySem/${sem}/${type}`);
   }
 }
